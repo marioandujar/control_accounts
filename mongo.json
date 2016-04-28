@@ -1,7 +1,7 @@
 {
   "env":{
     "dev":{
-      "uri": "mongodb://<user>:<password>@<host>:<port>/<dbname>"
+      "uri": "mongodb://account:account@ds021771.mlab.com:21771/control_accounts"
     }
   }
 }

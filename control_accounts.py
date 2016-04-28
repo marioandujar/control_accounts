@@ -32,7 +32,9 @@ def home_page():
 @app.route('/transactions')
 def transactions():
     transactions = mongo.db.transactions.find()
-    return render_template('transactions.html', transactions=transactions)
+    accounts = sorted(mongo.db.transactions.distinct('account_name'), reverse=True)
+    return render_template('transactions.html',
+                           transactions=transactions,accounts=accounts)
 
 # @app.route('/import_excel', methods=['GET'])
 # def import_excel():
