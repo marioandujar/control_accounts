@@ -1,0 +1,41 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <table class="table table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Operation ID</th>
+                            <th>Date</th>
+                            <th>Concept</th>
+                            <th style="text-align: right">Amount</th>
+                            <th style="text-align: right">Balance</th>
+                            <th>Tag</th>
+                            <th>Account name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% set row = 1 %}
+                    {% for transaction in transactions %}
+                        <tr>
+                            <th scope="row">{{ row }}</th>
+                            <td>{{ transaction.operation_id }}</td>
+                            <td>{{ transaction.date.strftime('%d/%m/%Y ') }}</td>
+                            <td>{{ transaction.concept }}</td>
+                            <td style="text-align: right" {{ ' class=text-danger' if transaction.amount < 0 }}>{{ "{:10.2f}".format(transaction.amount) }} €</td>
+                            <td style="text-align: right" {{ ' class=text-danger' if transaction.balance < 0 }}>{{ "{:10.2f}".format(transaction.balance) }} €</td>
+                            <td>{{ transaction.tag }}</td>
+                            <td>{{ transaction.account_name }}</td>
+                        </tr>
+                        {% set row = row + 1 %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
