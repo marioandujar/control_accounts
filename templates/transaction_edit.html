@@ -1,0 +1,52 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+           <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="input_operation_id" class="col-sm-2 control-label">Operation ID</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="input_operation_id" placeholder="Operation ID" value="{{ transaction.operation_id }}" disabled>
+                    </div>
+                </div>
+               <div class="form-group">
+                    <label for="input_date" class="col-sm-2 control-label">Date</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="input_date" placeholder="Date" value="{{ transaction.date }}">
+                    </div>
+                </div>
+               <div class="form-group">
+                    <label for="input_concept" class="col-sm-2 control-label">Concept</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="input_concept" placeholder="Concept" value="{{ transaction.concept }}">
+                    </div>
+                </div>
+               <div class="form-group">
+                    <label for="input_amount" class="col-sm-2 control-label">Amount</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="input_amount" placeholder="Amount" value="{{ transaction.amount }}" disabled>
+                    </div>
+                </div>
+               <div class="form-group">
+                    <label for="input_balance" class="col-sm-2 control-label">Balance</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="input_balance" placeholder="Balance" value="{{ transaction.balance }}" disabled>
+                    </div>
+                </div>
+               <div class="form-group">
+                    <label for="input_tag" class="col-sm-2 control-label">Tag</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="input_tag" placeholder="Tag" value="{{ transaction.tag }}">
+                    </div>
+                </div>
+               <div class="form-group">
+                    <label for="input_account_name" class="col-sm-2 control-label">Account name</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="input_account_name" placeholder="Account name" value="{{ transaction.account_name }}">
+                    </div>
+                </div>
+           </form>
+        </div>
+    </div>
+{% endblock %}

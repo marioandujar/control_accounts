@@ -7,6 +7,7 @@
                 <table class="table table-hover table-condensed">
                     <thead>
                         <tr>
+                            <th></th>
                             <th>#</th>
                             <th>Operation ID</th>
                             <th>Date</th>
@@ -19,20 +20,17 @@
                     </thead>
                     <tbody>
                     {% set row = 1 %}
-                    {% set balance = {} %}
                     {% for transaction in transactions %}
                         <tr>
+                            <td><a href="/transaction/{{ transaction._id }}"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a></td>
                             <th scope="row">{{ row }}</th>
                             <td>{{ transaction.operation_id }}</td>
                             <td>{{ transaction.date.strftime('%d/%m/%Y ') }}</td>
                             <td>{{ transaction.concept }}</td>
-                            <td style="text-align: right" {{ ' class=text-danger' if transaction.amount < 0 }}>{{ "{:10.2f}".format(transaction.amount) }} €</td>
-                            <td style="text-align: right" {{ ' class=text-danger' if transaction.balance < 0 }}>{{ "{:10.2f}".format(transaction.balance) }} €</td>
+                            <td style="text-align: right" {{ ' class=text-danger' if transaction.amount < 0 }}>{{ "{:,.2f} €".format(transaction.amount) }}</td>
+                            <td style="text-align: right" {{ ' class=text-danger' if transaction.balance < 0 }}>{{ "{:,.2f} €".format(transaction.balance) }}</td>
                             <td>{{ transaction.tag }}</td>
                             <td>{{ transaction.account_name }}</td>
-{#                            {% if transaction.account_name not in balance %}#}
-{#                                {% set balance.transaction.account_name = {} -%}#}
-{#                            {% endif %}#}
                         </tr>
                         {% set row = row + 1 %}
                     {% endfor %}
@@ -40,8 +38,27 @@
                 </table>
             </div>
             <div class="col-md-3">
-                {% for account in accounts %}
-                    <h4>{{ account }}</h4>
+                {% for name in balance %}
+                   <div class="row">
+                        <div class="col-md-12">
+                            <h4><strong>{{ name }}</strong></h4>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Expenses</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Incomes</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger">{{ "{:,.2f} €".format(balance[name]['expenses']) }}</h6>
+                            <hr>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>{{ "{:,.2f} €".format(balance[name]['incomes']) }}</h6>
+                            <hr>
+                        </div>
+
+                  </div>
                 {% endfor %}
             </div>
         </div>

@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+
+{% block scripts %}
+    {{super()}}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="{{ url_for('static', filename='month.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <input type="hidden" id="expensives" value="{{ expensives }}" />
+        <input type="hidden" id="incomes" value="{{ incomes }}" />
+        <div class="row">
+            <div class="col-md-6">
+                <div id="container_expensives" style="margin: 0 auto;height: 800px"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="container_incomes" style="margin: 0 auto;height: 800px"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

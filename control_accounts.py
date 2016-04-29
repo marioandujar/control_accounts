@@ -1,10 +1,12 @@
 import os
 import xlrd
 import datetime
+from bson.objectid import ObjectId
 import json
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask.ext.pymongo import PyMongo
+from bson.son import SON
 
 # create our little application :)
 app = Flask(__name__)
@@ -20,22 +22,129 @@ app.config.update(dict(
     MONGO_URI=mongo_conf["env"]["dev"]["uri"]
 ))
 
+
 def connect_db():
     """Connects to the specific database."""
     mongo = PyMongo(app)
     return mongo
 
+
 @app.route('/')
 def home_page():
     return render_template('index.html')
 
+
 @app.route('/transactions')
 def transactions():
-    transactions = mongo.db.transactions.find()
+    transactions = list(mongo.db.transactions.find().sort('date'))
     accounts = sorted(mongo.db.transactions.distinct('account_name'), reverse=True)
+    balance = {}
+    for account in accounts:
+        balance[account] = {'expenses': 0, 'income': 0}
+        trans_account = list(filter(lambda t: t['account_name'] == account, transactions))
+        balance[account]['expenses'] = sum([t3['amount'] for t3 in filter(lambda t2: t2['amount'] < 0, trans_account)])
+        balance[account]['incomes'] = sum([t3['amount'] for t3 in filter(lambda t2: t2['amount'] > 0, trans_account)])
     return render_template('transactions.html',
-                           transactions=transactions,accounts=accounts)
+                           transactions=transactions, accounts=accounts, balance=balance)
 
+@app.route('/transactions/<account_name>')
+def transactions_account_name(account_name):
+    transactions = list(mongo.db.transactions.find({"account_name": account_name}).sort('date'))
+    accounts = sorted(mongo.db.transactions.distinct('account_name'), reverse=True)
+    balance = {}
+    balance[account_name] = {'expenses': 0, 'income': 0}
+    trans_account = list(filter(lambda t: t['account_name'] == account_name, transactions))
+    balance[account_name]['expenses'] = sum([t3['amount'] for t3 in filter(lambda t2: t2['amount'] < 0, trans_account)])
+    balance[account_name]['incomes'] = sum([t3['amount'] for t3 in filter(lambda t2: t2['amount'] > 0, trans_account)])
+    return render_template('transactions.html',
+                           transactions=transactions, accounts=accounts, balance=balance)
+
+@app.route('/transaction/<transaction_id>')
+def transaction_edit(transaction_id):
+    transaction = mongo.db.transactions.find_one_or_404({"_id": ObjectId(transaction_id)})
+    return render_template('transaction_edit.html',
+                           transaction=transaction)
+
+
+@app.route('/annual')
+def anual():
+    command_expensive = [
+        {"$match": {"amount": {"$lte": 0}}},
+        {"$project": {
+            "month": {"$month": "$date"},
+            "tag": "$tag",
+            "amount": "$amount",
+            "account_name": "$account_name"
+        }
+        },
+        {"$group": {
+            # "_id": {"month": "$month", "tag": "$tag", "account_name": "$account_name"},
+            "_id": {"month": "$month", "account_name": "$account_name"},
+            "total": {"$sum": "$amount"}
+        }
+        },
+        {"$sort": SON([("_id.month", 1)])}
+    ]
+    command_income = [
+        {"$match": {"amount": {"$gte": 0}}},
+        {"$project": {
+            "month": {"$month": "$date"},
+            "tag": "$tag",
+            "amount": "$amount",
+            "account_name": "$account_name"
+        }
+        },
+        {"$group": {
+            # "_id": {"month": "$month", "tag": "$tag", "account_name": "$account_name"},
+            "_id": {"month": "$month", "account_name": "$account_name"},
+            "total": {"$sum": "$amount"}
+        }
+        },
+        {"$sort": SON([("_id.month", 1)])}
+    ]
+    expensives = list(mongo.db.transactions.aggregate(command_expensive))
+    incomes = list(mongo.db.transactions.aggregate(command_income))
+    return render_template('annual.html',
+                           expensives=json.dumps(expensives, ensure_ascii=False), incomes=json.dumps(incomes, ensure_ascii=False))
+
+@app.route('/annual/<account_name>')
+def anual_account_name(account_name):
+    command_expensive = [
+        {"$match": {"amount": {"$lte": 0}, "account_name": account_name}},
+        {"$project": {
+            "month": {"$month": "$date"},
+            "tag": "$tag",
+            "amount": "$amount",
+            "account_name": "$account_name"
+        }
+        },
+        {"$group": {
+            "_id": {"month": "$month", "tag": "$tag"},
+            "total": {"$sum": "$amount"}
+        }
+        },
+        {"$sort": SON([("_id.month", 1)])}
+    ]
+    command_income = [
+        {"$match": {"amount": {"$gte": 0}, "account_name": account_name}},
+        {"$project": {
+            "month": {"$month": "$date"},
+            "tag": "$tag",
+            "amount": "$amount",
+            "account_name": "$account_name"
+        }
+        },
+        {"$group": {
+            "_id": {"month": "$month", "tag": "$tag"},
+            "total": {"$sum": "$amount"}
+        }
+        },
+        {"$sort": SON([("_id.month", 1)])}
+    ]
+    expensives = list(mongo.db.transactions.aggregate(command_expensive))
+    incomes = list(mongo.db.transactions.aggregate(command_income))
+    return render_template('annual.html',
+                           expensives=json.dumps(expensives, ensure_ascii=False), incomes=json.dumps(incomes, ensure_ascii=False))
 # @app.route('/import_excel', methods=['GET'])
 # def import_excel():
 #     path = '/home/marioandujar/Dropbox/Documentos hipotecarios/Cuentas.xlsx'
