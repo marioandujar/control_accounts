@@ -1,7 +1,24 @@
 {% extends "index.html" %}
+{% block scripts %}
+    {{super()}}
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+{% endblock %}
+{% block menu %}
+<ul class="nav navbar-nav">
+              <li class="active">
+                  <a href="/transactions">Transactions</a>
+              </li>
+              <li>
+                  <a href="/report">Report</a>
+              </li>
+              <li>
+                  <a href="#">Link</a>
+              </li>
+</ul>
+{% endblock %}
 
 {% block content %}
-    <div class="container-fluid">
+    <div class="container">
         <div class="row">
            <form class="form-horizontal">
                 <div class="form-group">

@@ -3,9 +3,18 @@
 {% block title %}Control Accounts{% endblock %}
 
 {% block navbar %}
-<div class="navbar navbar-fixed-top">
-  <!-- ... -->
-</div>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+
+    </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-6">
+          {% block menu %}
+
+          {% endblock %}
+      </div>
+  </div>
+</nav>
 {% endblock %}
 
 {% block content %}

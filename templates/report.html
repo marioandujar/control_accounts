@@ -1,0 +1,65 @@
+{% extends "index.html" %}
+
+{% block scripts %}
+    {{super()}}
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="{{ url_for('static', filename='report.js') }}"></script>
+{% endblock %}
+
+{% block menu %}
+<ul class="nav navbar-nav">
+              <li>
+                  <a href="/transactions">Transactions</a>
+              </li>
+              <li class="active">
+                  <a href="/report">Report</a>
+              </li>
+              <li>
+                  <a href="#">Link</a>
+              </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <input type="hidden" id="expensives" value="{{ expensives }}" />
+        <input type="hidden" id="incomes" value="{{ incomes }}" />
+        <div class="row">
+            <div class="col-md-2">
+                <ul id="myTabs" class="nav nav-pills nav-stacked">
+                    <li class="active">
+                        <a href="#pane_global" data-toggle="tab">Global</a>
+                    </li>
+                    <li>
+                        <a href="#pane_expensives" data-toggle="tab">Expensives</a>
+                    </li>
+                    <li>
+                        <a href="#pane_incomes" data-toggle="tab">Incomes</a>
+                    </li>
+                </ul>
+                <span class="label label-info" id="labelIncome">Income</span>
+                <br>
+                <span class="label label-danger" id="labelExpensive">Expensive</span>
+            </div>
+            <div class="col-md-10">
+                <div class="tab-content">
+                    <div class="tab-pane fade active in" id="pane_global">
+                        <div id="container_mix" style="margin: 0 auto;min-width: 945px;height: 400px"></div>
+                        <div id="container_table" style="margin: 0 auto;min-width: 945px;height: 550px"></div>
+                    </div>
+                    <div class="tab-pane fade" id="pane_expensives">
+                        <div id="container_expensives" style="margin: 0 auto;min-width: 945px;height: 400px"></div>
+                    </div>
+                    <div class="tab-pane fade" id="pane_incomes">
+                        <div id="container_incomes" style="margin: 0 auto;min-width: 945px;height: 400px"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

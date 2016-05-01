@@ -66,8 +66,8 @@ def transaction_edit(transaction_id):
                            transaction=transaction)
 
 
-@app.route('/annual')
-def anual():
+@app.route('/report')
+def report():
     command_expensive = [
         {"$match": {"amount": {"$lte": 0}}},
         {"$project": {
@@ -79,7 +79,7 @@ def anual():
         },
         {"$group": {
             # "_id": {"month": "$month", "tag": "$tag", "account_name": "$account_name"},
-            "_id": {"month": "$month", "account_name": "$account_name"},
+            "_id": {"month": "$month", "account_name": "$account_name", "tag": "$tag"},
             "total": {"$sum": "$amount"}
         }
         },
@@ -96,7 +96,7 @@ def anual():
         },
         {"$group": {
             # "_id": {"month": "$month", "tag": "$tag", "account_name": "$account_name"},
-            "_id": {"month": "$month", "account_name": "$account_name"},
+            "_id": {"month": "$month", "account_name": "$account_name", "tag": "$tag"},
             "total": {"$sum": "$amount"}
         }
         },
@@ -104,11 +104,11 @@ def anual():
     ]
     expensives = list(mongo.db.transactions.aggregate(command_expensive))
     incomes = list(mongo.db.transactions.aggregate(command_income))
-    return render_template('annual.html',
+    return render_template('report.html',
                            expensives=json.dumps(expensives, ensure_ascii=False), incomes=json.dumps(incomes, ensure_ascii=False))
 
-@app.route('/annual/<account_name>')
-def anual_account_name(account_name):
+@app.route('/report/<account_name>')
+def report_account_name(account_name):
     command_expensive = [
         {"$match": {"amount": {"$lte": 0}, "account_name": account_name}},
         {"$project": {
@@ -143,8 +143,50 @@ def anual_account_name(account_name):
     ]
     expensives = list(mongo.db.transactions.aggregate(command_expensive))
     incomes = list(mongo.db.transactions.aggregate(command_income))
-    return render_template('annual.html',
+    return render_template('report.html',
                            expensives=json.dumps(expensives, ensure_ascii=False), incomes=json.dumps(incomes, ensure_ascii=False))
+
+@app.route('/month/<year>/<month>')
+def month_year(year, month):
+    command_expensive = [
+        {"$project": {
+            "month": {"$month": "$date"},
+            "year": {"$year": "$date"},
+            "tag": "$tag",
+            "amount": "$amount",
+            "account_name": "$account_name"
+        }
+        },
+        {"$match": {"amount": {"$lte": 0}, "year": year, "month": month}},
+        {"$group": {
+            "_id": {"month": "$month", "tag": "$tag"},
+            "total": {"$sum": "$amount"}
+        }
+        },
+        {"$sort": SON([("_id.month", 1)])}
+    ]
+    command_income = [
+        {"$project": {
+            "month": {"$month": "$date"},
+            "year": {"$year": "$date"},
+            "tag": "$tag",
+            "amount": "$amount",
+            "account_name": "$account_name"
+        }
+        },
+        {"$match": {"amount": {"$gte": 0}, "year": year, "month": month}},
+        {"$group": {
+            "_id": {"month": "$month", "tag": "$tag"},
+            "total": {"$sum": "$amount"}
+        }
+        },
+        {"$sort": SON([("_id.month", 1)])}
+    ]
+    expensives = list(mongo.db.transactions.aggregate(command_expensive))
+    incomes = list(mongo.db.transactions.aggregate(command_income))
+    return render_template('month.html',
+                           expensives=json.dumps(expensives, ensure_ascii=False),
+                           incomes=json.dumps(incomes, ensure_ascii=False))
 # @app.route('/import_excel', methods=['GET'])
 # def import_excel():
 #     path = '/home/marioandujar/Dropbox/Documentos hipotecarios/Cuentas.xlsx'
